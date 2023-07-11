@@ -94,6 +94,14 @@ network_density = nx.density(G)
 # Compute degree assortativity
 degree_assortativity = nx.degree_assortativity_coefficient(G)
 
+# Compute the degree of each node
+degrees = dict(G.degree())
+
+# Compute the degrees of the neighboring nodes for each node
+neighbor_degrees = []
+for node in G.nodes():
+    neighbor_degrees.append([degrees[neighbor] for neighbor in G.neighbors(node)])
+
 # Compute degree correlation
 degree_correlation = nx.degree_pearson_correlation_coefficient(G)
 
@@ -108,6 +116,7 @@ print("PageRank:", pagerank)
 print("Network Density:", network_density)
 print("Degree Assortativity:", degree_assortativity)
 print("Community Structure:", partition)
+print("Degree Correlation:", degree_correlation)
 
 # Draw the network graph with node colors based on communities
 pos = nx.spring_layout(G)
