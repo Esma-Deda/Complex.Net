@@ -94,6 +94,9 @@ network_density = nx.density(G)
 # Compute degree assortativity
 degree_assortativity = nx.degree_assortativity_coefficient(G)
 
+# Compute degree correlation
+degree_correlation = nx.degree_pearson_correlation_coefficient(G)
+
 # Perform community detection using Louvain algorithm
 partition = community.best_partition(G.to_undirected())
 
