@@ -92,6 +92,13 @@ for i in range(max(partition.values()) + 1):
     pos = nx.spring_layout(subgraph)
     nx.draw(subgraph, pos, with_labels=True, node_size=1000, cmap='tab20', edge_color='gray', arrowsize=12, font_size=8)
 
+    clustering_coefficient = nx.average_clustering(G)
+    print("Clustering Coefficient:", clustering_coefficient)
+    
+    for node in G.nodes:
+        clustering_coefficient = nx.clustering(G, node)
+        print(f"Clustering Coefficient of Node {node}: {clustering_coefficient}")
+
     # Save the network graph as an image
     filename = f"community_graph_{i}.png"
     plt.title(f"Community {i}")
