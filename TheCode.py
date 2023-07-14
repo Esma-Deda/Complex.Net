@@ -127,7 +127,7 @@ print("Degree Correlation:", degree_correlation)
 
 
 # Draw the patient context subgraph
-plt.figure(figsize=(12, 8))
+plt.figure(figsize=(12, 6))
 pos = nx.spring_layout(patient_subgraph, k=0.7)
 nx.draw_networkx(patient_subgraph, pos=pos, with_labels=False, node_size=800, node_color='lightblue',
                  font_size=12, font_weight='bold', edge_color='gray', alpha=0.7, width=1.5)
@@ -140,7 +140,7 @@ plt.show()
 keyword_freq = [count for keyword, count in keyword_counts.most_common(num_keywords)]
 
 # Plot the histogram of keyword frequencies
-plt.figure(figsize=(12, 8))
+plt.figure(figsize=(12, 6))
 plt.hist(keyword_freq, bins=20, edgecolor='black')
 plt.xlabel('Frequency')
 plt.ylabel('Count')
