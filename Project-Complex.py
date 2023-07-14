@@ -23,31 +23,57 @@ G.add_nodes_from([
     'Emotional Responsiveness',
     'Empathy',
     'Patient Satisfaction',
-    'Adherence to Treatment'
+    'Adherence to Treatment',
+    'Doctor-Patient Interaction',
+    'Emotional Health',
+    'Symptom Resolution',
+    'Functional Status',
+    'Health Literacy',
+    'Cultural Competency',
+    'Patient Engagement',
+    'Health Disparities',
+    'Patient Empowerment',
+    'Patient-Centeredness',
+    'Care Coordination',
+    'Patient Safety',
+    'Healthcare Policies'
 ])
 
-# Add directed edges (relationships)
+# Add directed edges based on relationships
 G.add_edges_from([
+    ('Patient-Physician Relationship', 'Communication Skills'),
+    ('Patient-Physician Relationship', 'Health Outcomes'),
+    ('Patient-Physician Relationship', 'Continuity of Care'),
+    ('Communication Skills', 'Information Giving'),
+    ('Communication Skills', 'Information Seeking'),
+    ('Communication Skills', 'Partnership Building'),
+    ('Communication Skills', 'Rapport Building'),
+    ('Communication Skills', 'Facilitation of Patient Expression'),
+    ('Communication Skills', 'Doctor-Patient Interaction'),
+    ('Health Outcomes', 'Symptom Resolution'),
+    ('Health Outcomes', 'Functional Status'),
+    ('Continuity of Care', 'Trust'),
+    ('Continuity of Care', 'Patient Satisfaction'),
+    ('Continuity of Care', 'Adherence to Treatment'),
     ('Information Giving', 'Patient Autonomy'),
     ('Information Giving', 'Shared Decision-Making'),
-    ('Information Seeking', 'Partnership Building'),
-    ('Information Seeking', 'Shared Decision-Making'),
+    ('Information Seeking', 'Patient Participation in Decision-Making'),
     ('Partnership Building', 'Rapport Building'),
     ('Partnership Building', 'Trust'),
-    ('Partnership Building', 'Continuity of Care'),
     ('Rapport Building', 'Emotional Responsiveness'),
     ('Rapport Building', 'Empathy'),
     ('Facilitation of Patient Expression', 'Patient Satisfaction'),
     ('Facilitation of Patient Expression', 'Patient Participation in Decision-Making'),
-    ('Patient Autonomy', 'Trust'),
-    ('Patient Autonomy', 'Shared Decision-Making'),
-    ('Patient Participation in Decision-Making', 'Shared Decision-Making'),
-    ('Patient Participation in Decision-Making', 'Health Outcomes'),
-    ('Trust', 'Patient Satisfaction'),
-    ('Trust', 'Continuity of Care'),
-    ('Continuity of Care', 'Patient Satisfaction'),
-    ('Continuity of Care', 'Adherence to Treatment'),
-    ('Continuity of Care', 'Trust')  # Additional directed edge
+    ('Doctor-Patient Interaction', 'Emotional Health'),
+    ('Doctor-Patient Interaction', 'Health Literacy'),
+    ('Doctor-Patient Interaction', 'Cultural Competency'),
+    ('Doctor-Patient Interaction', 'Patient Engagement'),
+    ('Doctor-Patient Interaction', 'Health Disparities'),
+    ('Doctor-Patient Interaction', 'Patient Empowerment'),
+    ('Doctor-Patient Interaction', 'Patient-Centeredness'),
+    ('Doctor-Patient Interaction', 'Care Coordination'),
+    ('Doctor-Patient Interaction', 'Patient Safety'),
+    ('Doctor-Patient Interaction', 'Healthcare Policies')
 ])
 
 # Compute degree centrality
@@ -58,9 +84,6 @@ betweenness_centrality = nx.betweenness_centrality(G)
 
 # Compute closeness centrality
 closeness_centrality = nx.closeness_centrality(G)
-
-# Compute eigenvector centrality
-eigenvector_centrality = nx.eigenvector_centrality(G)
 
 # Compute PageRank
 pagerank = nx.pagerank(G)
@@ -78,7 +101,6 @@ partition = community.best_partition(G.to_undirected())
 print("Degree Centrality:", degree_centrality)
 print("Betweenness Centrality:", betweenness_centrality)
 print("Closeness Centrality:", closeness_centrality)
-print("Eigenvector Centrality:", eigenvector_centrality)
 print("PageRank:", pagerank)
 print("Network Density:", network_density)
 print("Degree Assortativity:", degree_assortativity)
