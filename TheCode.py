@@ -133,7 +133,7 @@ nx.draw_networkx(patient_subgraph, pos=pos, with_labels=False, node_size=800, no
                  font_size=12, font_weight='bold', edge_color='gray', alpha=0.7, width=1.5)
 nx.draw_networkx_labels(patient_subgraph, pos=pos, font_size=10, font_weight='normal')
 plt.axis('off')
-plt.title('Patient Context Subgraph')
+plt.title('Network graph')
 plt.show()
 
 # Calculate keyword frequencies
