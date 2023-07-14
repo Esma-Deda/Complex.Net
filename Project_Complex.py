@@ -107,8 +107,15 @@ print("Degree Assortativity:", degree_assortativity)
 print("Community Structure:", partition)
 print("Degree Correlation:", degree_correlation)
 
+# Calculate clustering coefficient
+clustering_coefficient = nx.clustering(cooc_network)
+
+# Print the clustering coefficient for each node
+for node, coefficient in clustering_coefficient.items():
+    print(f"Node {node}: Clustering Coefficient = {coefficient}")
+
 # Draw the co-occurrence network
-plt.figure(figsize=(10, 10))
+plt.figure(figsize=(10, 6))
 pos = nx.spring_layout(cooc_network)
 nx.draw_networkx(cooc_network, pos=pos, with_labels=True, node_size=800, node_color='lightblue', font_size=12, font_weight='bold', edge_color='gray', alpha=0.7)
 plt.axis('off')
