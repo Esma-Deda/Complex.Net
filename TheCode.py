@@ -8,12 +8,8 @@ from collections import Counter
 import PyPDF4
 import community
 
-
-
-# Download necessary NLTK resources
 nltk.download('punkt')
 nltk.download('stopwords')
-
 
 # Function to process the text and extract keywords
 def process_text(text):
@@ -26,7 +22,6 @@ def process_text(text):
     filtered_tokens = [token.lower() for token in tokens if token.lower() not in stop_words and token.isalpha() and len(token) > 1 and token.lower() not in excluded_words]
 
     return filtered_tokens
-
 
 # Function to create co-occurrence network
 def create_cooccurrence_network(keywords):
@@ -59,29 +54,15 @@ with open(file_path, 'rb') as pdf_file:
 # Process the article text and extract keywords
 keywords = process_text(article_text)
 
-# Compute keyword frequency
+# Calculate keyword frequencies
 keyword_counts = Counter(keywords)
 
-# Get the 40 most important keywords
+# Get the 40 most important keywords based on their frequency
 num_keywords = 40
 top_keywords = [keyword for keyword, count in keyword_counts.most_common(num_keywords)]
 
 # Create the co-occurrence network
 cooc_network = create_cooccurrence_network(top_keywords)
-
-# Define the patient-related terms
-patient_terms = ['patient', 'symptoms', 'diagnosis', 'treatment', 'condition']
-
-# Create a subgraph based on patient-related terms and their context
-patient_subgraph = nx.Graph()
-
-# Add patient-related terms to the subgraph
-patient_subgraph.add_nodes_from(patient_terms)
-
-# Iterate over the co-occurrence network and add relevant edges to the subgraph
-for word1, word2 in cooc_network.edges():
-    if word1 in patient_terms and word2 in top_keywords:
-        patient_subgraph.add_edge(word1, word2, weight=cooc_network[word1][word2]['weight'])
 
 # Compute degree centrality
 degree_centrality = nx.degree_centrality(cooc_network)
@@ -125,16 +106,16 @@ print("Degree Assortativity:", degree_assortativity)
 print("Community Structure:", partition)
 print("Degree Correlation:", degree_correlation)
 
-
 # Draw the patient context subgraph
 plt.figure(figsize=(12, 6))
-pos = nx.spring_layout(patient_subgraph, k=0.7)
-nx.draw_networkx(patient_subgraph, pos=pos, with_labels=False, node_size=800, node_color='lightblue',
+pos = nx.spring_layout(cooc_network, k=0.7)
+nx.draw_networkx(cooc_network, pos=pos, with_labels=False, node_size=800, node_color='lightblue',
                  font_size=12, font_weight='bold', edge_color='gray', alpha=0.7, width=1.5)
-nx.draw_networkx_labels(patient_subgraph, pos=pos, font_size=10, font_weight='normal')
+nx.draw_networkx_labels(cooc_network, pos=pos, font_size=10, font_weight='normal')
 plt.axis('off')
 plt.title('Network graph')
 plt.show()
+
 
 # Calculate keyword frequencies
 keyword_freq = [count for keyword, count in keyword_counts.most_common(num_keywords)]

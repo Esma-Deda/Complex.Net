@@ -8,6 +8,8 @@ import matplotlib.pyplot as plt
 import networkx as nx
 from yake import KeywordExtractor
 import numpy as np
+from collections import Counter
+
 
 nltk.download('punkt')
 nltk.download('stopwords')
@@ -80,6 +82,16 @@ with open(file_path, 'rb') as file:
 
 # Extract keywords
 keywords = extract_keywords(article_text)
+
+# Calculate keyword frequencies
+keyword_counts = Counter(keywords)
+
+# Sort the keywords based on their frequency (most common first)
+sorted_keywords = keyword_counts.most_common()
+
+# Get the 40 most important keywords based on their frequency
+num_keywords = 40
+top_keywords = [keyword for keyword, count in sorted_keywords[:num_keywords]]
 
 # Compute semantic similarity and create the network
 network = compute_semantic_similarity(keywords)
