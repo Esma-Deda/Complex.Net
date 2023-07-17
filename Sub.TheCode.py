@@ -1,7 +1,7 @@
 import nltk
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
-from nltk.stem import WordNetLemmatizer  # Add this import statement
+from nltk.stem import WordNetLemmatizer  
 import networkx as nx
 import matplotlib.pyplot as plt
 from itertools import combinations
