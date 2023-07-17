@@ -8,7 +8,6 @@ from collections import Counter
 import PyPDF4
 import community
 
-
 # Download necessary NLTK resources
 nltk.download('punkt')
 nltk.download('stopwords')
@@ -20,7 +19,7 @@ def process_text(text):
 
     # Removing Stop Words and unwanted tokens
     stop_words = set(stopwords.words('english'))
-    excluded_words = ['tx', 'butowpn', 'md', 'streetjrr', 'thus']  # Add more excluded words here
+    excluded_words = ['tx','kuom', 'dc', 'stileswb', 'wardmm', 'butowpn', 'makoulg', 'wadmm', 'gafnia', 'kinmonthal','md', 'streetjrrl', 'tion', 'inturn', 'tion', 'thus', 'fujimorim', 'tattersallmh', 'brownrf', 'sabilityto', 'gordonhs']  
     filtered_tokens = [token.lower() for token in tokens if token.lower() not in stop_words and token.isalpha() and len(token) > 1 and token.lower() not in excluded_words]
 
     return filtered_tokens
@@ -42,8 +41,16 @@ def create_cooccurrence_network(keywords):
 
     return cooc_network
 
+
+def filter_keywords_by_frequency(keywords, min_frequency):
+    filtered_keywords = [keyword for keyword in keywords if keyword_counts[keyword] >= min_frequency]
+    return filtered_keywords
+
+min_frequency_threshold = 2
+
 # File path of the PDF article
 file_path = '/Users/esmaisufi/Desktop/Articles/2.How-does-communication-heal--Pathways-linking-clinici_2009_Patient-Education.pdf'
+
 
 # Extract text from the PDF
 with open(file_path, 'rb') as pdf_file:
@@ -58,15 +65,21 @@ keywords = process_text(article_text)
 # Compute keyword frequency
 keyword_counts = Counter(keywords)
 
-# Get the 40 most important keywords
+# Get the 40 most important keywords based on their frequency
 num_keywords = 40
 top_keywords = [keyword for keyword, count in keyword_counts.most_common(num_keywords)]
+
+# Filter keywords based on the minimum frequency threshold
+top_keywords = filter_keywords_by_frequency(top_keywords, min_frequency_threshold)
 
 # Create the co-occurrence network
 cooc_network = create_cooccurrence_network(top_keywords)
 
 # Compute degree centrality
 degree_centrality = nx.degree_centrality(cooc_network)
+
+# Compute betweenness centrality
+betweenness_centrality = nx.betweenness_centrality(cooc_network)
 
 # Compute betweenness centrality
 betweenness_centrality = nx.betweenness_centrality(cooc_network)

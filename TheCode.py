@@ -17,7 +17,7 @@ def process_text(text):
 
     # Removing Stop Words and unwanted tokens
     stop_words = set(stopwords.words('english'))
-    excluded_words = ['tx', 'butowpn', 'md', 'streetjrrl', 'tion', 'inturn', 'tion', 'thus']  
+    excluded_words = ['tx','kuom', 'dc', 'stileswb', 'wardmm', 'butowpn', 'makoulg', 'wadmm', 'gafnia', 'kinmonthal','md', 'streetjrrl', 'tion', 'inturn', 'tion', 'thus', 'fujimorim', 'tattersallmh', 'brownrf', 'sabilityto', 'gordonhs']  
     filtered_tokens = [token.lower() for token in tokens if token.lower() not in stop_words and token.isalpha() and len(token) > 1 and token.lower() not in excluded_words]
 
     return filtered_tokens
@@ -25,7 +25,7 @@ def process_text(text):
 # Function to create co-occurrence network
 def create_cooccurrence_network(keywords):
     # Create a co-occurrence network
-    cooc_network = nx.Graph()
+    cooc_network = nx.DiGraph()
 
     # Add nodes to the network
     cooc_network.add_nodes_from(keywords)
@@ -38,6 +38,12 @@ def create_cooccurrence_network(keywords):
             cooc_network.add_edge(word1, word2, weight=1)
 
     return cooc_network
+
+def filter_keywords_by_frequency(keywords, min_frequency):
+    filtered_keywords = [keyword for keyword in keywords if keyword_counts[keyword] >= min_frequency]
+    return filtered_keywords
+
+min_frequency_threshold = 2
 
 # Function to calculate the average distance
 def average_distance(graph):
