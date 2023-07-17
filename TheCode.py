@@ -17,7 +17,7 @@ def process_text(text):
 
     # Removing Stop Words and unwanted tokens
     stop_words = set(stopwords.words('english'))
-    excluded_words = ['tx', 'butowpn', 'md', 'streetjrr', 'thus']  # Add more excluded words here
+    excluded_words = ['tx', 'butowpn', 'md', 'streetjrrl', 'tion', 'inturn', 'tion', 'thus']  
     filtered_tokens = [token.lower() for token in tokens if token.lower() not in stop_words and token.isalpha() and len(token) > 1 and token.lower() not in excluded_words]
 
     return filtered_tokens
@@ -38,6 +38,21 @@ def create_cooccurrence_network(keywords):
             cooc_network.add_edge(word1, word2, weight=1)
 
     return cooc_network
+
+# Function to calculate the average distance
+def average_distance(graph):
+    total_distance = 0
+    total_pairs = 0
+    for source, paths in nx.all_pairs_shortest_path_length(graph):
+        for target, distance in paths.items():
+            if source != target:  # Exclude self-loops
+                total_distance += distance
+                total_pairs += 1
+
+    return total_distance / total_pairs
+
+# Calculate the average distance
+average_distance_value = 0
 
 # File path of the PDF article
 file_path = '/Users/esmaisufi/Desktop/Articles/2.How-does-communication-heal--Pathways-linking-clinici_2009_Patient-Education.pdf'
@@ -61,6 +76,12 @@ top_keywords = [keyword for keyword, count in keyword_counts.most_common(num_key
 
 # Create the co-occurrence network
 cooc_network = create_cooccurrence_network(top_keywords)
+
+# Calculate the average distance
+average_distance_value = average_distance(cooc_network)
+
+# Print the average distance
+print(f"Average Distance between words: {average_distance_value:.2f}")
 
 # Compute degree centrality
 degree_centrality = nx.degree_centrality(cooc_network)
