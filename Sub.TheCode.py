@@ -1,50 +1,64 @@
 import nltk
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
+from nltk.stem import WordNetLemmatizer  # Add this import statement
 import networkx as nx
 import matplotlib.pyplot as plt
 from itertools import combinations
 from collections import Counter
 import PyPDF4
-import community
+from fuzzywuzzy import fuzz
+from nltk.corpus import wordnet
 
 
-
-# Download necessary NLTK resources
-nltk.download('punkt')
-nltk.download('stopwords')
-
-
-# Function to process the text and extract keywords
-def process_text(text):
+# Function to process the text and extract keywords related to clinician-patient communication
+def process_clinician_patient_keywords(text):
     # Tokenization
     tokens = word_tokenize(text)
 
     # Removing Stop Words and unwanted tokens
     stop_words = set(stopwords.words('english'))
-    excluded_words = ['tx', 'butowpn', 'md', 'streetjrr', 'thus']  # Add more excluded words here
-    filtered_tokens = [token.lower() for token in tokens if token.lower() not in stop_words and token.isalpha() and len(token) > 1 and token.lower() not in excluded_words]
+    excluded_words = ['tx', 'butowpn', 'md', 'streetjrrl', 'tion', 'inturn', 'tion', 'thus', 'patient', 'doctor', 'physician']
+    
+    # Lemmatize the keywords
+    lemmatizer = WordNetLemmatizer()
+    lemmatized_tokens = [lemmatizer.lemmatize(token.lower()) for token in tokens if token.lower() not in stop_words and token.isalpha() and len(token) > 1 and token.lower() not in excluded_words]
+
+    # Filter keywords based on semantic similarity to relevant terms
+    relevant_terms = ['patient', 'doctor', 'physician']
+    filtered_tokens = []
+    for token in lemmatized_tokens:
+        synsets_token = wordnet.synsets(token)
+        if any(synsets_token):
+            for term in relevant_terms:
+                synsets_term = wordnet.synsets(term)
+                if any(synsets_term):
+                    max_similarity = max(synsets_token[0].path_similarity(synset_term) for synset_term in synsets_term)
+                    if max_similarity is not None and max_similarity >= 0.2:  # You can adjust the similarity threshold as needed
+                        filtered_tokens.append(token)
+                        break
 
     return filtered_tokens
 
 
+
 # Function to create co-occurrence network
 def create_cooccurrence_network(keywords):
-    # Create a co-occurrence network
-    cooc_network = nx.Graph()
+    # Create a directed co-occurrence network (digraph)
+    cooc_network = nx.DiGraph()
 
-    # Add nodes to the network
-    cooc_network.add_nodes_from(keywords)
+    # Add nodes to the network with 'label' attributes
+    for keyword in keywords:
+        cooc_network.add_node(keyword, label=keyword)
 
-    # Compute co-occurrence frequency and add edges to the network
+    # Compute co-occurrence frequency and add directed edges to the network
     for word1, word2 in combinations(keywords, 2):
-        if word2 in cooc_network[word1]:
+        if cooc_network.has_edge(word1, word2):
             cooc_network[word1][word2]['weight'] += 1
         else:
             cooc_network.add_edge(word1, word2, weight=1)
 
     return cooc_network
-
 
 # File path of the PDF article
 file_path = '/Users/esmaisufi/Desktop/Articles/2.How-does-communication-heal--Pathways-linking-clinici_2009_Patient-Education.pdf'
@@ -56,56 +70,37 @@ with open(file_path, 'rb') as pdf_file:
     for page in range(pdf_reader.getNumPages()):
         article_text += pdf_reader.getPage(page).extractText()
 
-# Process the article text and extract keywords
-keywords = process_text(article_text)
+# Process the article text and extract keywords related to clinician-patient communication
+clinician_patient_keywords = process_clinician_patient_keywords(article_text)
 
-# Compute keyword frequency
-keyword_counts = Counter(keywords)
+# Calculate keyword frequencies
+keyword_counts = Counter(clinician_patient_keywords)
 
-# Get the 40 most important keywords
+# Get the 40 most important keywords based on their frequency
 num_keywords = 40
 top_keywords = [keyword for keyword, count in keyword_counts.most_common(num_keywords)]
 
 # Create the co-occurrence network
 cooc_network = create_cooccurrence_network(top_keywords)
 
-# Define the patient-related terms
-patient_terms = ['patient', 'symptoms', 'diagnosis', 'treatment', 'condition']
+# Visualize the directed clinician-patient communication-related subgraph
+plt.figure(figsize=(12, 6))
+pos = nx.spring_layout(cooc_network, seed=42)
+nx.draw(cooc_network, pos=pos, with_labels=True, node_size=800, node_color='lightblue',
+        font_size=12, font_weight='bold', edge_color='gray', alpha=0.7, width=1.5, arrows=True)
+plt.title('Directed Co-occurrence Network of Clinician-Patient Communication Keywords')
+plt.show()
 
-# Create a subgraph based on patient-related terms and their context
-patient_subgraph = nx.Graph()
+# Function to calculate the average weight of edges in the co-occurrence network
+def calculate_average_edge_weight(graph):
+    total_weight = 0
+    total_edges = graph.number_of_edges()
 
-# Add patient-related terms to the subgraph
-patient_subgraph.add_nodes_from(patient_terms)
+    for _, _, weight in graph.edges.data('weight'):
+        total_weight += weight
 
-# Iterate over the co-occurrence network and add relevant edges to the subgraph
-for word1, word2 in cooc_network.edges():
-    if word1 in patient_terms and word2 in top_keywords:
-        patient_subgraph.add_edge(word1, word2, weight=cooc_network[word1][word2]['weight'])
+    return total_weight / total_edges
 
-# Perform community detection using Louvain algorithm
-partition = community.best_partition(cooc_network)
-
-# Create a dictionary to store the nodes for each cluster
-cluster_nodes = {}
-for node, cluster_id in partition.items():
-    if cluster_id not in cluster_nodes:
-        cluster_nodes[cluster_id] = [node]
-    else:
-        cluster_nodes[cluster_id].append(node)
-
-# Create subgraphs for each cluster
-cluster_subgraphs = []
-for nodes in cluster_nodes.values():
-    subgraph = cooc_network.subgraph(nodes).copy()
-    cluster_subgraphs.append(subgraph)
-
-# Visualize each cluster subgraph
-for i, subgraph in enumerate(cluster_subgraphs):
-    plt.figure(figsize=(10, 10))
-    pos = nx.kamada_kawai_layout(subgraph)
-    nx.draw_networkx(subgraph, pos=pos, with_labels=True, node_size=800, node_color='lightblue',
-                     font_size=12, font_weight='bold', edge_color='gray', alpha=0.7, width=1.5)
-    plt.title(f"Cluster {i+1} Subgraph")
-    plt.axis('off')
-    plt.show()
+# Calculate the average edge weight of the co-occurrence network
+average_edge_weight = calculate_average_edge_weight(cooc_network)
+print(f"Average Edge Weight: {average_edge_weight:.2f}")
