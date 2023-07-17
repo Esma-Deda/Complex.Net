@@ -6,7 +6,6 @@ import matplotlib.pyplot as plt
 from itertools import combinations
 from collections import Counter
 import PyPDF4
-import community
 
 nltk.download('punkt')
 nltk.download('stopwords')
@@ -33,13 +32,12 @@ def create_cooccurrence_network(keywords):
 
     # Compute co-occurrence frequency and add edges to the network
     for word1, word2 in combinations(keywords, 2):
-        if word2 in cooc_network[word1]:
+        if cooc_network.has_edge(word1, word2):
             cooc_network[word1][word2]['weight'] += 1
         else:
             cooc_network.add_edge(word1, word2, weight=1)
 
     return cooc_network
-
 
 # File path of the PDF article
 file_path = '/Users/esmaisufi/Desktop/Articles/2.How-does-communication-heal--Pathways-linking-clinici_2009_Patient-Education.pdf'
@@ -82,48 +80,27 @@ network_density = nx.density(cooc_network)
 # Compute degree assortativity
 degree_assortativity = nx.degree_assortativity_coefficient(cooc_network)
 
-# Compute the degree of each node
-degrees = dict(cooc_network.degree())
+# Calculate clustering coefficient
+clustering_coefficient = nx.clustering(cooc_network)
 
-# Compute the degrees of the neighboring nodes for each node
-neighbor_degrees = []
-for node in cooc_network.nodes():
-    neighbor_degrees.append([degrees[neighbor] for neighbor in cooc_network.neighbors(node)])
-
-# Compute degree correlation
-degree_correlation = nx.degree_pearson_correlation_coefficient(cooc_network)
-
-# Perform community detection using Louvain algorithm
-partition = community.best_partition(cooc_network.to_undirected())
-
-# Print the results
-print("Degree Centrality:", degree_centrality)
-print("Betweenness Centrality:", betweenness_centrality)
-print("Closeness Centrality:", closeness_centrality)
-print("PageRank:", pagerank)
-print("Network Density:", network_density)
-print("Degree Assortativity:", degree_assortativity)
-print("Community Structure:", partition)
-print("Degree Correlation:", degree_correlation)
-
-# Draw the patient context subgraph
+# Print the clustering coefficient for each node
+for node, coefficient in clustering_coefficient.items():
+    print(f"Node {node}: Clustering Coefficient = {coefficient}")
+    
+# Draw the network graph
 plt.figure(figsize=(12, 6))
 pos = nx.spring_layout(cooc_network, k=0.7)
 nx.draw_networkx(cooc_network, pos=pos, with_labels=False, node_size=800, node_color='lightblue',
                  font_size=12, font_weight='bold', edge_color='gray', alpha=0.7, width=1.5)
 nx.draw_networkx_labels(cooc_network, pos=pos, font_size=10, font_weight='normal')
 plt.axis('off')
-plt.title('Network graph')
+plt.title('Co-occurrence Network of Top 40 Keywords')
 plt.show()
 
-
-# Calculate keyword frequencies
-keyword_freq = [count for keyword, count in keyword_counts.most_common(num_keywords)]
-
-# Plot the histogram of keyword frequencies
-plt.figure(figsize=(12, 6))
-plt.hist(keyword_freq, bins=20, edgecolor='black')
-plt.xlabel('Frequency')
-plt.ylabel('Count')
-plt.title('Histogram of Keyword Frequencies')
-plt.show()
+# Print centrality measurements
+print("Degree Centrality:", degree_centrality)
+print("Betweenness Centrality:", betweenness_centrality)
+print("Closeness Centrality:", closeness_centrality)
+print("PageRank:", pagerank)
+print("Network Density:", network_density)
+print("Degree Assortativity:", degree_assortativity)
