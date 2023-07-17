@@ -125,3 +125,12 @@ print("Closeness Centrality:", closeness_centrality)
 print("PageRank:", pagerank)
 print("Network Density:", network_density)
 print("Degree Assortativity:", degree_assortativity)
+
+# Plot the histogram of keyword frequencies
+keyword_freq = [count for keyword, count in keyword_counts.most_common(num_keywords)]
+plt.figure(figsize=(8, 6))
+plt.hist(keyword_freq, bins=20, edgecolor='black')
+plt.xlabel('Frequency')
+plt.ylabel('Count')
+plt.title('Histogram of Keyword Frequencies')
+plt.show()
